@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<h2><i class="fas fa-stethoscope"></i> Doctor Dashboard</h2>
+
+<div class="row" style="display: flex; gap: 20px; flex-wrap: wrap;">
+
+    <!-- Left: Upcoming Appointments -->
+    <div style="flex: 2; min-width: 400px;">
+        <div class="card">
+            <h3>Upcoming Appointments</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in appointments %}
+                    <tr>
+                        <td>#{{ appt.id }}</td>
+                        <td>{{ appt.patient.username }}</td>
+                        <td>{{ appt.date_time.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if appt.status == 'Completed' %}
+                            <span class="badge" style="color: green;">Completed</span>
+                            {% else %}
+                            <a href="#treat-{{ appt.id }}" class="btn btn-success"
+                                onclick="document.getElementById('treat-{{ appt.id }}').style.display='block'">Treat</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- Hidden Treatment Form (Matches "Update Patient History" in Diagram) -->
+                    <tr id="treat-{{ appt.id }}" style="display: none; background: #f8f9fa;">
+                        <td colspan="4">
+                            <form action="{{ url_for('complete_appointment', id=appt.id) }}" method="POST"
+                                style="padding: 15px;">
+                                <h4>Update History for {{ appt.patient.username }}</h4>
+                                <div class="form-group">
+                                    <label>Diagnosis</label>
+                                    <input type="text" name="diagnosis" placeholder="e.g. Viral Fever" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Prescribed Medicines</label>
+                                    <textarea name="prescription" placeholder="Medicine 1-0-1..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save & Complete</button>
+                                <button type="button" class="btn btn-warning"
+                                    onclick="document.getElementById('treat-{{ appt.id }}').style.display='none'">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right: Availability (Matches Diagram Right Bottom) -->
+    <div style="flex: 1; min-width: 300px;">
+        <div class="card">
+            <h3>My Availability</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Select slots to mark as unavailable</p>
+
+            <div class="time-grid">
+                <!-- Simulated Grid based on Diagram -->
+                <div class="time-slot available">08:00 - 09:00</div>
+                <div class="time-slot available">09:00 - 10:00</div>
+                <div class="time-slot booked">10:00 - 11:00</div>
+                <div class="time-slot available">11:00 - 12:00</div>
+                <div class="time-slot available">14:00 - 15:00</div>
+                <div class="time-slot available">15:00 - 16:00</div>
+                <div class="time-slot available">16:00 - 17:00</div>
+                <div class="time-slot booked">17:00 - 18:00</div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;">Update Schedule</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
